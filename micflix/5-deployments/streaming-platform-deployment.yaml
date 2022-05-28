@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streaming-platform-deployment
+  labels:
+    app: streaming-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streaming-platform
+  template:
+    metadata:
+      labels:
+        app: streaming-platform
+    spec:
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: streaming-platform
+        image: mickeykrekels/my-projects:Micflix-Streaming-Platform
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.2"       

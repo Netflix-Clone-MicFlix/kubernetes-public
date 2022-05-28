@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb2
+spec:
+  selector:
+    matchLabels:
+      app: mongodb2 # has to match .spec.template.metadata.labels
+  serviceName: "mongodb2"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb2 # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mongodb2
+          image: mongo
+          ports:
+            - containerPort: 27017
+              name: mongodb2
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb2
+                  key: MONGO_INITDB_ROOT_USERNAME
+
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb2
+                  key: MONGO_INITDB_ROOT_PASSWORD
+
+          volumeMounts:
+            - name: mongodb2
+              mountPath: /data/db
+  volumeClaimTemplates:
+    - metadata:
+        name: mongodb2
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: "hostpath"
+        resources:
+          requests:
+            storage: 500Mi

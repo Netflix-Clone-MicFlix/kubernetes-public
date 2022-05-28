@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak-deployment
+  labels:
+    app: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: keycloak
+        image: mickeykrekels/my-projects:keycloak
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080 # port number
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.2"   
+          
+        env:
+        - name: DB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: DB_DATABASE
+
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: DB_USER
+
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: DB_PASSWORD
+
+        - name: KEYCLOAK_USER
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: KEYCLOAK_USER
+
+        - name: KEYCLOAK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: KEYCLOAK_PASSWORD
+
+        - name: DB_VENDOR
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak
+              key: DB_VENDOR
+
+        - name: PROXY_ADDRESS_FORWARDING
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak
+              key: PROXY_ADDRESS_FORWARDING
+
+        - name: DB_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak
+              key: DB_ADDR
+
+        # rabbitmq arg
+        - name: KK_TO_RMQ_URL
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak
+              key: KK_TO_RMQ_URL
+
+        - name: KK_TO_RMQ_VHOST
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: KK_TO_RMQ_VHOST
+
+        - name: KK_TO_RMQ_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: KK_TO_RMQ_USERNAME
+
+        - name: KK_TO_RMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak
+              key: KK_TO_RMQ_PASSWORD

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb1
+spec:
+  selector:
+    matchLabels:
+      app: mongodb1 # has to match .spec.template.metadata.labels
+  serviceName: "mongodb1"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb1 # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mongodb1
+          image: mongo
+          ports:
+            - containerPort: 27017
+              name: mongodb1
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb1
+                  key: MONGO_INITDB_ROOT_USERNAME
+
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb1
+                  key: MONGO_INITDB_ROOT_PASSWORD
+
+          volumeMounts:
+            - name: mongodb1
+              mountPath: /data/db
+  volumeClaimTemplates:
+    - metadata:
+        name: mongodb1
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: "hostpath"
+        resources:
+          requests:
+            storage: 500Mi
+        selector:
+          matchLabels:
+            type: local
+#0/1 nodes are available: 1 pod has unbound immediate PersistentVolumeClaims. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.

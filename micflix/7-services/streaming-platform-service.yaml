@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: streaming-platform
+  labels:
+    app: streaming-platform
+spec:
+  ports:
+    - port: 9600
+      name: streaming-platform
+      targetPort: 80
+  type: ClusterIP
+  selector:
+    app: streaming-platform
